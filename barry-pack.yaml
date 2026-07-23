@@ -1,0 +1,32 @@
+manifestVersion: 1
+name: clickhouse
+description: ClickHouse query execution, schema inspection, and infrastructure management
+
+instructions: |
+  Use clickhouse MCP tools for database queries and schema inspection.
+  Use clickhousectl_* tools for local server management and cloud operations.
+  Prefer list_databases/list_tables for schema exploration before writing queries.
+
+mcp-servers:
+  clickhouse:
+    type: http
+    url: https://mcp.clickhouse.cloud/mcp
+
+  # Fallback: official ClickHouse MCP server for direct host/port connections
+  # clickhouse-direct:
+  #   command: npx
+  #   args: ["-y", "@clickhouse/mcp-server"]
+  #   env: [CLICKHOUSE_HOST, CLICKHOUSE_PORT, CLICKHOUSE_USER, CLICKHOUSE_PASSWORD]
+
+tools:
+  entry: tools.ts
+
+traits:
+  clickhouse-query:
+    description: "ClickHouse query execution and schema inspection"
+    access: read
+    namespaces: [clickhouse]
+  clickhouse-infra:
+    description: "ClickHouse local and cloud infrastructure management via clickhousectl"
+    access: readwrite
+    namespaces: [clickhousectl]
