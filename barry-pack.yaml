@@ -21,6 +21,11 @@ mcp-servers:
 tools:
   entry: tools.ts
 
+dependencies:
+  - name: clickhousectl
+    install: curl https://clickhouse.com/cli | sh
+    reason: powers all clickhousectl tools
+
 traits:
   clickhouse-query:
     description: "ClickHouse query execution and schema inspection"

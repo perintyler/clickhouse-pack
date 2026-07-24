@@ -3,14 +3,17 @@ import { existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
+// No TS parameter properties here — the MCP server imports pack tools under
+// Node's strip-only type stripping, which can't transform that syntax.
 export class ClickHouseCtlError extends Error {
-  constructor(
-    message: string,
-    public readonly exitCode: number | null,
-    public readonly stderr: string,
-  ) {
+  readonly exitCode: number | null;
+  readonly stderr: string;
+
+  constructor(message: string, exitCode: number | null, stderr: string) {
     super(message);
     this.name = "ClickHouseCtlError";
+    this.exitCode = exitCode;
+    this.stderr = stderr;
   }
 }
 
