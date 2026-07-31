@@ -4,11 +4,11 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@barry/tools": "link:/Users/tyler/repos/barry/packages/tools",
+    "@barry/tools": "link:../../barry/packages/tools",
     "zod": "3.25.76"
   },
   "devDependencies": {
-    "@barry/packs": "link:/Users/tyler/repos/barry/packages/packs",
+    "@barry/packs": "link:../../barry/packages/packs",
     "@types/node": "22.15.0",
     "tsx": "4.21.0",
     "typescript": "5.9.3"
