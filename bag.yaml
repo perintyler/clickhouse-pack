@@ -1,4 +1,3 @@
-manifestVersion: 1
 name: clickhouse
 description: ClickHouse query execution, schema inspection, and infrastructure management
 

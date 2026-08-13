@@ -1,4 +1,4 @@
-# ClickHouse (Barry Pack)
+# ClickHouse (Barry bag)
 
 ClickHouse query execution, schema inspection, and infrastructure management.
 

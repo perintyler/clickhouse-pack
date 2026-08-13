@@ -1,7 +1,7 @@
 <!-- tools: Bash,Read -->
-# QA: clickhouse pack
+# QA: clickhouse bag
 
-ClickHouse Barry pack — wraps ClickHouse Cloud MCP, clickhousectl CLI tools, and official agent skills.
+ClickHouse Barry bag — wraps ClickHouse Cloud MCP, clickhousectl CLI tools, and official agent skills.
 
 ## Requirements
 
@@ -12,7 +12,7 @@ ClickHouse Barry pack — wraps ClickHouse Cloud MCP, clickhousectl CLI tools, a
 ## Setup
 
 ```bash
-cd /Users/tyler/repos/packs/clickhouse && pnpm install 2>&1 | grep -v ERR_PNPM || true
+cd /Users/tyler/repos/bags/clickhouse && pnpm install 2>&1 | grep -v ERR_PNPM || true
 ./setup.sh
 ```
 
@@ -21,19 +21,19 @@ cd /Users/tyler/repos/packs/clickhouse && pnpm install 2>&1 | grep -v ERR_PNPM |
 ### 1. TypeScript compiles
 
 ```bash
-cd /Users/tyler/repos/packs/clickhouse && npx tsc --noEmit
+cd /Users/tyler/repos/bags/clickhouse && npx tsc --noEmit
 ```
 
 **Expected:** Exit code 0, no type errors
 
-### 2. Manifest parses through barry's pack loader
+### 2. Manifest parses through barry's bag loader
 
 Verifies the manifest passes zod schema validation — catches field typos, missing required keys, unknown fields that `strict()` would reject.
 
 ```bash
-cd /Users/tyler/repos/packs/clickhouse && npx tsx -e "
-  import { parseManifest } from '@barry/packs';
-  const manifest = parseManifest('/Users/tyler/repos/packs/clickhouse');
+cd /Users/tyler/repos/bags/clickhouse && npx tsx -e "
+  import { parseManifest } from '@barry/bags';
+  const manifest = parseManifest('/Users/tyler/repos/bags/clickhouse');
   if (!manifest) { console.log('FAIL: manifest returned null'); process.exit(1); }
   const checks = [
     ['name', manifest.name === 'clickhouse'],
@@ -51,42 +51,42 @@ cd /Users/tyler/repos/packs/clickhouse && npx tsx -e "
 
 **Expected:** `OK — manifest parses with all expected fields`
 
-### 3. Pack loads via loadPack and resolves traits
+### 3. Bag loads via loadBag and resolves traits
 
-Verifies the full pack loading pipeline — registry lookup, manifest parse, trait generation (auto + custom). This is the same codepath the MCP server uses to discover pack tools.
+Verifies the full bag loading pipeline — registry lookup, manifest parse, trait generation (auto + custom). This is the same codepath the MCP server uses to discover bag tools.
 
 ```bash
-cd /Users/tyler/repos/packs/clickhouse && npx tsx -e "
-  import { loadPack, getAllTraits } from '@barry/packs';
+cd /Users/tyler/repos/bags/clickhouse && npx tsx -e "
+  import { loadBag, getAllTraits } from '@barry/bags';
   (async () => {
-    const result = loadPack('clickhouse');
-    const pack = result instanceof Promise ? await result : result;
-    if (!pack) { console.log('FAIL: loadPack returned null — is clickhouse registered in ~/.barry/packs.yaml?'); process.exit(1); }
+    const result = loadBag('clickhouse');
+    const bag = result instanceof Promise ? await result : result;
+    if (!bag) { console.log('FAIL: loadBag returned null — is clickhouse registered in ~/Library/Application Support/Barry/bags.yaml?'); process.exit(1); }
 
     // Check auto-traits (generated from mcpServers + toolsEntry)
-    const all = getAllTraits(pack);
+    const all = getAllTraits(bag);
     const traitNames = all.map(t => t.name).sort();
     const expected = ['clickhouse', 'clickhouse-infra', 'clickhouse-query', 'clickhouse-read'];
     const missing = expected.filter(e => !traitNames.includes(e));
     if (missing.length) { console.log('FAIL: missing traits:', missing.join(', ')); process.exit(1); }
 
     // Check MCP server resolved
-    if (!pack.mcpServers.clickhouse) { console.log('FAIL: mcpServers.clickhouse not found'); process.exit(1); }
+    if (!bag.mcpServers.clickhouse) { console.log('FAIL: mcpServers.clickhouse not found'); process.exit(1); }
 
     // Check skills dir detected
-    if (pack.skillsDirs.length === 0) { console.log('FAIL: no skillsDirs found'); process.exit(1); }
+    if (bag.skillsDirs.length === 0) { console.log('FAIL: no skillsDirs found'); process.exit(1); }
 
-    console.log('OK — pack loads, ' + all.length + ' traits, ' + Object.keys(pack.mcpServers).length + ' MCP server(s), ' + pack.skillsDirs.length + ' skills dir(s)');
+    console.log('OK — bag loads, ' + all.length + ' traits, ' + Object.keys(bag.mcpServers).length + ' MCP server(s), ' + bag.skillsDirs.length + ' skills dir(s)');
   })();
 " 2>&1 | grep -v DEP0205
 ```
 
-**Expected:** `OK — pack loads, 4 traits, 1 MCP server(s), 1 skills dir(s)`
+**Expected:** `OK — bag loads, 4 traits, 1 MCP server(s), 1 skills dir(s)`
 
 ### 4. Tools module exports all 7 tools with correct shapes
 
 ```bash
-cd /Users/tyler/repos/packs/clickhouse && npx tsx -e "
+cd /Users/tyler/repos/bags/clickhouse && npx tsx -e "
   import * as tools from './src/tools.ts';
   const expected = [
     'clickhousectl_cloud_org_usage',
@@ -129,7 +129,7 @@ cd /Users/tyler/repos/packs/clickhouse && npx tsx -e "
 Calls the actual `clickhousectl_status` handler — the same function the MCP server invokes. Verifies it returns `installed`, `version`, and `cloudAuth` fields.
 
 ```bash
-cd /Users/tyler/repos/packs/clickhouse && npx tsx -e "
+cd /Users/tyler/repos/bags/clickhouse && npx tsx -e "
   import { clickhousectlStatus } from './src/tools.ts';
   (async () => {
     const result = await clickhousectlStatus.handler({});
@@ -153,7 +153,7 @@ cd /Users/tyler/repos/packs/clickhouse && npx tsx -e "
 Calls the `clickhousectl_cloud_service_list` handler end-to-end. Requires authenticated cloud access.
 
 ```bash
-cd /Users/tyler/repos/packs/clickhouse && npx tsx -e "
+cd /Users/tyler/repos/bags/clickhouse && npx tsx -e "
   import { clickhousectlCloudServiceList } from './src/tools.ts';
   (async () => {
     const result = await clickhousectlCloudServiceList.handler({});
@@ -169,7 +169,7 @@ cd /Users/tyler/repos/packs/clickhouse && npx tsx -e "
 ### 7. Exec helper throws ClickHouseCtlError on bad subcommand
 
 ```bash
-cd /Users/tyler/repos/packs/clickhouse && npx tsx -e "
+cd /Users/tyler/repos/bags/clickhouse && npx tsx -e "
   import { runClickHouseCtl } from './src/exec.ts';
   (async () => {
     try {
@@ -191,7 +191,7 @@ cd /Users/tyler/repos/packs/clickhouse && npx tsx -e "
 ### 8. Agent skills are linked and contain SKILL.md files
 
 ```bash
-cd /Users/tyler/repos/packs/clickhouse && SKILLS=$(find -L skills/clickhouse -name SKILL.md -maxdepth 2 2>/dev/null | wc -l | tr -d ' ')
+cd /Users/tyler/repos/bags/clickhouse && SKILLS=$(find -L skills/clickhouse -name SKILL.md -maxdepth 2 2>/dev/null | wc -l | tr -d ' ')
 if [ "$SKILLS" -eq 0 ]; then echo "FAIL: no skills linked — run ./setup.sh"; exit 1; fi
 test -f skills/clickhouse/clickhouse-best-practices/SKILL.md && echo "best-practices OK" || echo "FAIL: best-practices missing"
 test -f skills/clickhouse/clickhouse-architecture-advisor/SKILL.md && echo "architecture-advisor OK" || echo "FAIL: architecture-advisor missing"
@@ -218,7 +218,7 @@ No cleanup needed.
 
 - [ ] TypeScript compiles with no errors
 - [ ] Manifest parses through barry's zod schema (parseManifest)
-- [ ] Pack loads via loadPack, auto-traits + custom traits resolve (4 total)
+- [ ] Bag loads via loadBag, auto-traits + custom traits resolve (4 total)
 - [ ] All 7 tools export with correct defineTool shape
 - [ ] Status tool handler executes and returns structured {installed, version, cloudAuth}
 - [ ] Cloud service list handler returns real data from ClickHouse Cloud

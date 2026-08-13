@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #
-# Setup script for the clickhouse pack.
+# Setup script for the clickhouse bag.
 #
 # Clones ClickHouse/agent-skills into a sibling directory (../clickhouse-skills)
-# and symlinks every skill into this pack's skills/clickhouse/ folder.
+# and symlinks every skill into this bag's skills/clickhouse/ folder.
 #
 # Re-run at any time to pull updates and pick up new skills.
 #
@@ -13,10 +13,10 @@
 #
 set -euo pipefail
 
-PACK_DIR="$(cd "$(dirname "$0")" && pwd)"
+BAG_DIR="$(cd "$(dirname "$0")" && pwd)"
 SKILLS_REPO="https://github.com/ClickHouse/agent-skills.git"
-SKILLS_DIR="$PACK_DIR/../clickhouse-skills"
-SKILLS_TARGET="$PACK_DIR/skills/clickhouse"
+SKILLS_DIR="$BAG_DIR/../clickhouse-skills"
+SKILLS_TARGET="$BAG_DIR/skills/clickhouse"
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
 
