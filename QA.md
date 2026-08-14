@@ -66,22 +66,25 @@ cd /Users/tyler/repos/bags/clickhouse && npx tsx -e "
     // Check auto-traits (generated from mcpServers + toolsEntry)
     const all = getAllTraits(bag);
     const traitNames = all.map(t => t.name).sort();
-    const expected = ['clickhouse', 'clickhouse-infra', 'clickhouse-query', 'clickhouse-read'];
+    // Declaring custom traits suppresses the auto <name>-read variant, so the
+    // set is the auto <name> trait plus the two declared in bag.yaml.
+    const expected = ['clickhouse', 'clickhouse-infra', 'clickhouse-query'];
     const missing = expected.filter(e => !traitNames.includes(e));
     if (missing.length) { console.log('FAIL: missing traits:', missing.join(', ')); process.exit(1); }
 
     // Check MCP server resolved
     if (!bag.mcpServers.clickhouse) { console.log('FAIL: mcpServers.clickhouse not found'); process.exit(1); }
 
-    // Check skills dir detected
-    if (bag.skillsDirs.length === 0) { console.log('FAIL: no skillsDirs found'); process.exit(1); }
+    // This bag ships no skills/ dir — the ClickHouse agent skills are a
+    // vendored upstream repo (clickhouse-skills), not part of this bag.
+    if (bag.skillsDirs.length !== 0) { console.log('FAIL: unexpected skillsDirs:', bag.skillsDirs); process.exit(1); }
 
     console.log('OK — bag loads, ' + all.length + ' traits, ' + Object.keys(bag.mcpServers).length + ' MCP server(s), ' + bag.skillsDirs.length + ' skills dir(s)');
   })();
 " 2>&1 | grep -v DEP0205
 ```
 
-**Expected:** `OK — bag loads, 4 traits, 1 MCP server(s), 1 skills dir(s)`
+**Expected:** `OK — bag loads, 3 traits, 1 MCP server(s), 0 skills dir(s)`
 
 ### 4. Tools module exports all 7 tools with correct shapes
 
